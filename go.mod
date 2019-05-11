@@ -12,6 +12,7 @@ require (
 	github.com/dnaeon/go-vcr v1.0.1 // indirect
 	github.com/elithrar/simple-scrypt v1.3.0
 	github.com/go-ini/ini v1.42.0 // indirect
+	github.com/go-ole/go-ole v1.2.4
 	github.com/google/go-cmp v0.2.0
 	github.com/gopherjs/gopherjs v0.0.0-20190411002643-bd77b112433e // indirect
 	github.com/hashicorp/golang-lru v0.5.1 // indirect
