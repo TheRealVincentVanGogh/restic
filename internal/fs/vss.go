@@ -3,13 +3,13 @@
 package fs
 
 import (
-	"errors"
+	"github.com/restic/restic/internal/errors"
 )
 
 type VssSnapshot struct{}
 
 func NewVssSnapshot(volume string, timeoutInSeconds uint) (VssSnapshot, error) {
-	return VssSnapshot{}, errors.New("VSS snapshots are only supported on windows.")
+	return VssSnapshot{}, errors.New("VSS snapshots are only supported on windows")
 }
 
 func (p *VssSnapshot) Delete() error {
