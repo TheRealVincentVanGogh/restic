@@ -50,6 +50,12 @@ still get a nice live status display. Be aware that the live status shows the
 processed files and not the transferred data. Transferred volume might be lower
 (due to de-duplication) or higher.
 
+On windows the ``--use-windows-vss`` option will use windows volume shadow copy
+service (vss) when creating backups. Restic will transparently create a vss
+snapshot for each volume that contains files to backup. Files are read from the
+vss snapshot instead of the regular file. This allows to backup files that are
+exclusively locked by another process during the backup.
+
 If you run the command again, restic will create another snapshot of
 your data, but this time it's even faster and no new data was added to the
 repository (since all data is already there). This is de-duplication at work!
