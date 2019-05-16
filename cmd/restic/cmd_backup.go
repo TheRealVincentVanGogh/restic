@@ -526,7 +526,7 @@ func runBackup(opts BackupOptions, gopts GlobalOptions, term *termstatus.Termina
 
 	var targetFS fs.FS = fs.Local{}
 	if runtime.GOOS == "windows" && opts.UseWindowsVSS {
-		localVss := fs.NewLocalVss()
+		localVss := fs.NewLocalVss(p.E, p.P, p.V)
 		defer localVss.DeleteSnapshots()
 		targetFS = localVss
 	}
