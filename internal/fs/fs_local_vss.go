@@ -62,12 +62,12 @@ func (fs LocalVss) OpenFile(
 
 // Stat wraps the Open method of the underlying file system.
 func (fs LocalVss) Stat(name string) (os.FileInfo, error) {
-	return fs.FS.Stat(fs.snapshotPath(name))
+	return os.Stat(fs.snapshotPath(name))
 }
 
 // Lstat wraps the Open method of the underlying file system.
 func (fs LocalVss) Lstat(name string) (os.FileInfo, error) {
-	return fs.FS.Lstat(fs.snapshotPath(name))
+	return os.Lstat(fs.snapshotPath(name))
 }
 
 // snapshotPath returns the path inside a VSS snapshots if it already exists.
@@ -104,6 +104,9 @@ func (fs LocalVss) snapshotPath(path string) string {
 		snapshotPath = fs.Join(
 			snapshot.GetSnapshotDeviceObject(),
 			strings.TrimPrefix(fixPath, volumeName))
+		if snapshotPath == snapshot.GetSnapshotDeviceObject() {
+			snapshotPath = snapshotPath + `\`
+		}
 	} else {
 		// TODO: log warning?
 		snapshotPath = path
