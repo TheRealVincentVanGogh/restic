@@ -400,7 +400,7 @@ func vssFreeSnapshotProperties(properties *VssSnapshotProperties) error {
 	if proc, err := findVssProc("VssFreeSnapshotProperties"); err != nil {
 		return err
 	} else {
-		proc.Call(uintptr(unsafe.Pointer(&properties)))
+		proc.Call(uintptr(unsafe.Pointer(properties)))
 	}
 
 	return nil
