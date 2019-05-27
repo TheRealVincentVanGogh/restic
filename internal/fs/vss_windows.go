@@ -522,10 +522,12 @@ type VssSnapshot struct {
 
 // Delete deletes the created snapshot.
 func (p *VssSnapshot) Delete() error {
+
 	var err error = nil
 	if err = vssFreeSnapshotProperties(&p.snapshotProperties); err != nil {
 		return err
 	}
+
 	if p.iVssBackupComponents != nil {
 		defer p.iVssBackupComponents.Release()
 

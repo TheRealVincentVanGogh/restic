@@ -41,11 +41,16 @@ func (fs LocalVss) DeleteSnapshots() {
 	fs.lock.Lock()
 	defer fs.lock.Unlock()
 
-	for _, snapshot := range fs.snapshots {
+	activeSnapshots := make(map[string]VssSnapshot)
+
+	for volumeName, snapshot := range fs.snapshots {
 		if err := snapshot.Delete(); err != nil {
 			fs.msgError("failed to delete VSS snapshot: %s", err)
+			activeSnapshots[volumeName] = snapshot
 		}
 	}
+
+	fs.snapshots = activeSnapshots
 }
 
 // Open  wraps the Open method of the underlying file system.
