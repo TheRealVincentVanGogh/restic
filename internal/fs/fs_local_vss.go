@@ -13,11 +13,12 @@ type MessageHandler func(msg string, args ...interface{})
 // shadow copy service (VSS) in a transparent way.
 type LocalVss struct {
 	FS
-	snapshots  map[string]VssSnapshot
-	lock       *sync.Mutex
-	msgError   MessageHandler
-	msgMessage MessageHandler
-	msgVerbose MessageHandler
+	snapshots       map[string]VssSnapshot
+	failedSnapshots map[string]bool
+	lock            *sync.Mutex
+	msgError        MessageHandler
+	msgMessage      MessageHandler
+	msgVerbose      MessageHandler
 }
 
 // statically ensure that LocalVss implements FS.
@@ -27,12 +28,13 @@ var _ FS = &LocalVss{}
 // shadow copy service to access locked files.
 func NewLocalVss(msgError, msgMessage, msgVerbose MessageHandler) LocalVss {
 	return LocalVss{
-		FS:         Local{},
-		snapshots:  make(map[string]VssSnapshot),
-		lock:       &sync.Mutex{},
-		msgError:   msgError,
-		msgMessage: msgMessage,
-		msgVerbose: msgVerbose,
+		FS:              Local{},
+		snapshots:       make(map[string]VssSnapshot),
+		failedSnapshots: make(map[string]bool),
+		lock:            &sync.Mutex{},
+		msgError:        msgError,
+		msgMessage:      msgMessage,
+		msgVerbose:      msgVerbose,
 	}
 }
 
@@ -87,20 +89,24 @@ func (fs LocalVss) snapshotPath(path string) string {
 
 	// ensure snapshot for volume exists
 	if _, ok := fs.snapshots[volumeName]; !ok {
-		vssVolume := volumeName + `\`
-		fs.msgMessage("creating VSS snapshot for [%s]\r\n", vssVolume)
+		if _, ok := fs.failedSnapshots[volumeName]; !ok {
 
-		if snapshot, err := NewVssSnapshot(vssVolume, 120); err != nil {
-			fs.msgError(
-				"failed to create snapshot for [%s]: %s\r\n",
-				volumeName, err,
-			)
-		} else {
-			fs.snapshots[volumeName] = snapshot
-			fs.msgVerbose(
-				"successfully created snapshot for [%s]\r\n",
-				vssVolume,
-			)
+			vssVolume := volumeName + `\`
+			fs.msgMessage("creating VSS snapshot for [%s]\r\n", vssVolume)
+
+			if snapshot, err := NewVssSnapshot(vssVolume, 120); err != nil {
+				fs.msgError(
+					"failed to create snapshot for [%s]: %s\r\n",
+					vssVolume, err,
+				)
+				fs.failedSnapshots[volumeName] = true
+			} else {
+				fs.snapshots[volumeName] = snapshot
+				fs.msgVerbose(
+					"successfully created snapshot for [%s]\r\n",
+					vssVolume,
+				)
+			}
 		}
 	}
 

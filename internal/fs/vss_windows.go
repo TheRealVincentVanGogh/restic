@@ -226,6 +226,24 @@ func (vss *IVssBackupComponents) GatherWriterMetadata() (HRESULT, *IVSSAsync) {
 	return vss.handleAsyncReturnValue(result, oleIUnknown)
 }
 
+// IsVolumeSupported calls the eqivalent VSS api.
+func (vss *IVssBackupComponents) IsVolumeSupported(
+	volumeName string,
+) (HRESULT, bool) {
+	volumeNamePointer, _ := syscall.UTF16PtrFromString(volumeName)
+	isSupported := false
+
+	result, _, _ := syscall.Syscall6(
+		vss.getVTable().isVolumeSupported, 4,
+		uintptr(unsafe.Pointer(vss)),
+		uintptr(unsafe.Pointer(ole.IID_NULL)),
+		uintptr(unsafe.Pointer(volumeNamePointer)),
+		uintptr(unsafe.Pointer(&isSupported)),
+		0, 0,
+	)
+	return HRESULT(result), isSupported
+}
+
 // StartSnapshotSet calls the eqivalent VSS api.
 func (vss *IVssBackupComponents) StartSnapshotSet() (HRESULT, ole.GUID) {
 	var snapshotSetId ole.GUID
@@ -626,6 +644,18 @@ func NewVssSnapshot(volume string, timeoutInSeconds uint) (VssSnapshot, error) {
 	)
 	if err != nil {
 		return VssSnapshot{}, err
+	}
+
+	if hRes, isSupported := iVssBackupComponents.IsVolumeSupported(volume); hRes != S_OK {
+		return VssSnapshot{}, fmt.Errorf(
+			"VSS error: IsVolumeSupported() returned %s (%#x)",
+			hRes.Str(), hRes,
+		)
+	} else if !isSupported {
+		return VssSnapshot{}, fmt.Errorf(
+			"VSS error: Snapshots are not supported for volume %s",
+			volume,
+		)
 	}
 
 	// TODO:
