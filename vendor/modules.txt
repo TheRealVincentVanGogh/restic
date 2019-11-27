@@ -149,15 +149,9 @@ golang.org/x/oauth2/jwt
 # golang.org/x/sync v0.0.0-20190423024810-112230192c58
 golang.org/x/sync/errgroup
 # golang.org/x/sys v0.0.0-20190422165155-953cdadca894
-<<<<<<< HEAD
-golang.org/x/sys/windows
-golang.org/x/sys/unix
-golang.org/x/sys/cpu
-=======
 golang.org/x/sys/cpu
 golang.org/x/sys/unix
 golang.org/x/sys/windows
->>>>>>> upstream/master
 # golang.org/x/text v0.3.1-0.20180807135948-17ff2d5776d2
 golang.org/x/text/encoding
 golang.org/x/text/encoding/internal
