@@ -48,10 +48,6 @@ installed from the official repos, e.g. with ``apt-get``:
     $ apt-get install restic
 
 
-.. warning:: Please be aware that, at the time of writing, Debian *stable*
-   has ``restic`` version 0.3.3 which is very old. The *testing* and *unstable*
-   branches have recent versions of ``restic``.
-
 Fedora
 ======
 
@@ -112,6 +108,15 @@ On FreeBSD (11 and probably later versions), you can install restic using ``pkg 
 .. code-block:: console
 
     # pkg install restic
+
+openSUSE
+========
+
+On openSUSE (leap 15.0 and greater, and tumbleweed), you can install restic using the ``zypper`` package manager:
+
+.. code-block:: console
+
+    # zypper install restic
 
 RHEL & CentOS
 =============
