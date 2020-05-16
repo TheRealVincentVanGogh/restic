@@ -1,3 +1,5 @@
 Enhancement: Document JSON structure and output syntax
 
 Documentation was missing information about JSON output.  The documentation now has tables explaining the json output we see for all the commands that support json output
+
+https://github.com/restic/restic/pull/2740
