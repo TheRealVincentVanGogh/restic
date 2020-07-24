@@ -575,6 +575,24 @@ func (p *VssSnapshot) GetSnapshotDeviceObject() string {
 // finish within the timeout an error is returned.
 func NewVssSnapshot(volume string, timeoutInSeconds uint) (VssSnapshot, error) {
 
+	is64Bit, err := isRunningOn64BitWindows()
+
+	if err != nil {
+		return VssSnapshot{}, fmt.Errorf(
+			"VSS error: Failed to detect windows architecture: %s",
+			err.Error(),
+		)
+	}
+
+	if (is64Bit && runtime.GOARCH != "amd64") ||
+		(!is64Bit && runtime.GOARCH != "386") {
+		return VssSnapshot{}, fmt.Errorf(
+			"VSS error: executables compiled for %s can't use VSS on other "+
+				"architectures. Please use an executable compiled for your platform.",
+			runtime.GOARCH,
+		)
+	}
+
 	var timeoutInMillis int64 = int64(timeoutInSeconds * 1000)
 	vssInstance, err := loadIVssBackupComponentsConstructor()
 
@@ -809,4 +827,27 @@ func queryInterface(
 	}
 
 	return ivss, nil
+}
+
+// isRunningOn64BitWindows returns true if running on 64-bit windows.
+func isRunningOn64BitWindows() (bool, error) {
+
+	if runtime.GOARCH == "amd64" {
+		return true, nil
+	}
+
+	handle, err := windows.GetCurrentProcess()
+
+	if err != nil {
+		return false, err
+	}
+
+	isWow64 := false
+	err = windows.IsWow64Process(handle, &isWow64)
+
+	if err != nil {
+		return false, err
+	}
+
+	return isWow64, nil
 }
