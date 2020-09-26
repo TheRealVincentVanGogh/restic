@@ -109,6 +109,7 @@ command:
           --stdin-filename filename                filename to use when reading from stdin (default "stdin")
           --tag tag                                add a tag for the new snapshot (can be specified multiple times)
           --time time                              time of the backup (ex. '2012-11-01 22:08:41') (default: now)
+          --use-windows-vss                        use windows volume shadow copy service
           --with-atime                             store the atime for all files and directories
 
     Global Flags:

@@ -10,6 +10,7 @@ import (
 	"os"
 	"path"
 	"path/filepath"
+	"runtime"
 	"strconv"
 	"strings"
 	"time"
@@ -97,6 +98,7 @@ type BackupOptions struct {
 	TimeStamp           string
 	WithAtime           bool
 	IgnoreInode         bool
+	UseWindowsVSS       bool
 }
 
 var backupOptions BackupOptions
@@ -147,6 +149,9 @@ func init() {
 		backupOptions.SaveBlobConcurrency = uint(saveBlobConcurrency)
 	}
 
+	if runtime.GOOS == "windows" {
+		f.BoolVar(&backupOptions.UseWindowsVSS, "use-windows-vss", false, "use windows volume shadow copy service")
+	}
 }
 
 // filterExisting returns a slice of all existing items, or an error if no
@@ -552,6 +557,11 @@ func runBackup(opts BackupOptions, gopts GlobalOptions, term *termstatus.Termina
 	}
 
 	var targetFS fs.FS = fs.Local{}
+	if runtime.GOOS == "windows" && opts.UseWindowsVSS {
+		localVss := fs.NewLocalVss(p.E, p.P, p.V)
+		defer localVss.DeleteSnapshots()
+		targetFS = localVss
+	}
 	if opts.Stdin {
 		if !gopts.JSON {
 			p.V("read data from stdin")
